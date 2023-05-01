@@ -1,10 +1,11 @@
-//Import inquirer and mySql
+//Import inquirer,mySql, console.table, and ascii-art generator
 const inquirer = require("inquirer");
 const mySql = require('mysql2');
 const cTable = require('console.table');
-const util = require('util');
+const art = require('ascii-art');
 const { resolve } = require("path");
 
+//Create db connection
 const db = mySql.createConnection(
     {
         host: 'localhost',
@@ -16,7 +17,7 @@ const db = mySql.createConnection(
 );
 
 
-
+//Create prompts to ask for user on initialization
 let possiblePrompts =
 {
     name: 'selection',
@@ -45,7 +46,7 @@ let departmentCreationPrompt = {
 async function showMenu() {
     //Ask user what they would like to do
     let task = await askTask();
-    //Check for the option selected by user
+    //Check for the option selected by user and run the appropriate function
     switch (task) {
         case 'View All Employees':
             await showEmployees()
@@ -71,7 +72,7 @@ async function showMenu() {
         case 'Quit':
             process.exit();
     }
-    setTimeout(showMenu, 1000)
+    setTimeout(showMenu, 500)
 }
 
 //Asks through inquirer the task to be performed
@@ -80,6 +81,7 @@ async function askTask() {
     return task.selection;
 }
 
+//Show roles in desired format
 async function showRoles() {
     new Promise((resolve, reject) => {
         db.query('SELECT r.id, r.title, d.name, r.salary FROM roles r JOIN departments d ON r.department_id = d.id', (err, res) => {
@@ -89,6 +91,7 @@ async function showRoles() {
     })
 }
 
+//Show Employees in desired format
 async function showEmployees() {
     return new Promise((resolve, reject) => {
         db.query('SELECT e.id, e.first_name, e.last_name, r.title, r.salary, d.name, CONCAT(e2.first_name, " ", e2.last_name) AS Manager FROM employees e LEFT JOIN employees e2 ON e2.id = e.manager_id JOIN roles r ON r.id = e.role_id JOIN departments d ON r.department_id = d.id', (err, res) => {
@@ -98,6 +101,7 @@ async function showEmployees() {
     });
 }
 
+//Show departments in desired format
 async function showDepartments() {
     return new Promise((resolve, reject) => {
         db.query('SELECT * FROM departments', (err, res) => {
@@ -107,7 +111,7 @@ async function showDepartments() {
     })
 }
 
-//Function to add Role
+//Function to add Role to db
 async function addRole() {
     return new Promise((resolve, reject) => {
         db.query('SELECT * FROM departments', async (err, res) => {
@@ -155,6 +159,7 @@ async function addRole() {
     })
 }
 
+//Function to add employee with role and manager to db
 async function addEmployee() {
     return new Promise((resolve, reject) => {
         db.query('SELECT * FROM roles', async (err, res) => {
@@ -224,7 +229,7 @@ async function addEmployee() {
     })
 }
 
-
+//Function to add department to db
 async function addDepartment() {
     return new Promise(async (resolve, reject) => {
         depName = await inquirer.prompt(departmentCreationPrompt);
@@ -236,7 +241,7 @@ async function addDepartment() {
     });
 }
 
-
+//Function that will run the code to update the employee role
 async function updateEmployeeRole() {
 
     return new Promise((resolve, reject) => {
@@ -290,5 +295,12 @@ async function updateEmployeeRole() {
         });
     });
 }
-
-showMenu();
+//Create art
+art.font("Employee", 'doom', (err, rendered)=>{
+    console.log(rendered);
+    art.font('Manager', 'doom', (err, rendered)=>{
+        console.log(rendered)
+        //initialize the menu
+        showMenu();
+    })
+});
