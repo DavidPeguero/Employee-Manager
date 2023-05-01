@@ -43,7 +43,7 @@ async function showMenu() {
     //Check for the option selected by user
     switch (task) {
         case 'View All Employees':
-            showTable(['employees']);
+            showEmployees();
             break;
         case 'View All Departments':
             showTable(['departments']);
@@ -68,6 +68,7 @@ async function showMenu() {
     }
 }
 
+//Asks through inquirer the task to be performed
 async function askTask() {
     let task = await inquirer.prompt(possiblePrompts);
     return task.selection;
@@ -85,8 +86,8 @@ function showRoles(){
     })
 }
 
-function showEmployee(){
-    db.query('SELECT r.id, r.title, d.name, r.salary FROM roles r JOIN departments d ON r.department_id = d.id', (err, res) => {
+function showEmployees(){
+    db.query('SELECT e.id, e.first_name, e.last_name, r.title, r.salary, d.name, CONCAT(e2.first_name, " ", e2.last_name) AS Manager FROM employees e JOIN employees e2 ON e2.id = e.manager_id JOIN roles r ON r.id = e.role_id JOIN departments d ON r.department_id = d.id', (err, res) => {
         console.table(res);
     })
 }
