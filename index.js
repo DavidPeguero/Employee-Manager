@@ -23,7 +23,8 @@ let possiblePrompts =
             'View All Departments',
             'Add Employee',
             'Add Role',
-            'Add Department'
+            'Add Department',
+            'Update Employee'
         ],
     }
 
@@ -76,10 +77,30 @@ let departmentCreationPrompt = {
 
 
 async function init(){
+    //Ask user what they would like to do
     let task =  await askTask();
+    //Check for the option selected by user
     switch (task){
         case'View All Employees':
             console.log(task);
+            break;
+        case'View All Departments':
+            console.log(task);
+            break;
+        case'View All Roles':
+            console.log(task);
+            break;
+        case'Add Employee':
+            console.log(task);
+            break;
+        case'Add Role':
+            console.log(task);
+            break;
+        case'Add Department':
+            console.log(task);
+            break;
+        case'Update Employee':
+            console.log(task);     
     }
 }
 
