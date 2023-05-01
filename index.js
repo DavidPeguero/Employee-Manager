@@ -24,7 +24,7 @@ let possiblePrompts =
         'Add Employee',
         'Add Role',
         'Add Department',
-        'Update Employee',
+        'Update Employee Role',
         'Quit'
     ],
 }
@@ -37,7 +37,7 @@ let departmentCreationPrompt = {
 }
 
 
-async function init() {
+async function showMenu() {
     //Ask user what they would like to do
     let task = await askTask();
     //Check for the option selected by user
@@ -49,7 +49,7 @@ async function init() {
             showTable(['departments']);
             break;
         case 'View All Roles':
-            showTable(['roles']);
+            showRoles();
             break;
         case 'Add Employee':
             await addEmployee();
@@ -58,10 +58,11 @@ async function init() {
             await addRole();
             break;
         case 'Add Department':
-            console.log(task);
+            await addDepartment();
             break;
-        case 'Update Employee':
-            console.log(task);
+        case 'Update Employee Role':
+            await updateEmployeeRole();
+            break;
         case 'Quit':
             process.exit();
     }
@@ -74,6 +75,24 @@ async function askTask() {
 
 function showTable(parameters) {
     db.query('SELECT * FROM ??', parameters, (err, res) => {
+        console.table(res);
+    })
+}
+
+function showRoles(){
+    db.query('SELECT r.id, r.title, d.name, r.salary FROM roles r JOIN departments d ON r.department_id = d.id', (err, res) => {
+        console.table(res);
+    })
+}
+
+function showEmployee(){
+    db.query('SELECT r.id, r.title, d.name, r.salary FROM roles r JOIN departments d ON r.department_id = d.id', (err, res) => {
+        console.table(res);
+    })
+}
+
+function showDepartments(){
+    db.query('SELECT * FROM departments', (err, res) => {
         console.table(res);
     })
 }
@@ -180,7 +199,7 @@ async function addEmployee() {
                 empAns.role === 'None' ? null : managerIds[managerNames.indexOf(empAns.manager)]
             ]
             db.query('INSERT INTO employees (first_name, last_name, role_id, manager_id)VALUES (?, ?, ?, ?)', newEmployee, (err, res) =>{
-                err ? console.error('Could not add employee') : console.log('Added employee')
+                err ? console.error('Could not add employee') : console.log('Added employee');
             })
         })
 
@@ -192,4 +211,63 @@ async function addEmployee() {
 }
 
 
-init();
+async function addDepartment(){
+    depName = await inquirer.prompt(departmentCreationPrompt);
+    db.query('INSERT INTO departments (name) VALUES (?)', depName.departmentName, (err, res) =>{
+        err ? console.error('Could not add department') : console.log('Added department');
+    })
+}
+
+
+async function updateEmployeeRole(){
+    db.query('SELECT * FROM employees', async (err, res) => {
+        let empNames = [];
+        let empIds = []
+
+        //Extract the employee names from the db
+        for (const emp of res) {
+            empNames.push(`${emp.first_name} ${emp.last_name}`);
+            empIds.push(emp.id);
+        }
+
+        //Query for roles
+        db.query('SELECT * FROM roles', async (err, res) => {
+            let roleNames = [];
+            let roleIds = []
+    
+            //Extract the roles names from the db
+            for (const role of res) {
+                roleNames.push(role.title);
+                roleIds.push(role.id);
+            }
+
+            let employeeUpdatePrompts = [
+                {
+                    name: 'empName',
+                    type: 'list',
+                    message: 'Which employee\'s role do you want to update?',
+                    choices: empNames
+                },
+                {
+                    name: 'role',
+                    type: 'list',
+                    message: 'Which role do you want to assign to the selected employee?',
+                    choices: roleNames
+                },
+            ]
+
+            let updateAns = await inquirer.prompt(employeeUpdatePrompts);
+            let updatedEmp = [
+                roleIds[roleNames.indexOf(updateAns.role)],
+                empIds[empNames.indexOf(updateAns.empName)]
+            ];
+
+            db.query('UPDATE employees SET role_id = ? WHERE id = ?', updatedEmp, (err,res) => {
+                err ? console.error('Could not update employee') : console.log('Successfully update employee');
+            })
+        });
+    });
+}
+
+
+showMenu();
