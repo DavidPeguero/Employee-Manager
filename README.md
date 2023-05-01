@@ -3,6 +3,8 @@
   [![](https://img.shields.io/badge/license-MIT-blue)](https://www.mend.io/resources/blog/top-open-source-licenses-explained/#MIT_License)
   ## Description
   CLI Interfact that connects to an employee db. Allows for creating roles, departments, and employees. It also allows for view the aforementioned and updating employee roles.
+
+  [Video demonstration](https://drive.google.com/file/d/1GDmsWf1HUL5qyXosd0RoaYlTEmIUn0uW/view?usp=sharing)
   ## Table of Contents
   1. [Installation](#installation)
   2. [Usage](#usage)
