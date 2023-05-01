@@ -2,11 +2,21 @@
 const inquirer = require("inquirer");
 const mySql = require('mysql2');
 
+const db = mySql.createConnection(
+    {
+      host: 'localhost',
+      user: 'root',
+      password: 'rootroot',
+      database: 'employees_db'
+    },
+    console.log(`Connected to the employees_db database.`)
+  );
+
 let possiblePrompts =
     {
         name: 'selection',
         type: 'list',
-        message: 'Enter desired shape (circle, square, or triangle)',
+        message: 'What would you like to do?',
         choices: [
             'View All Employees',
             'View All Roles',
@@ -63,3 +73,19 @@ let departmentCreationPrompt = {
     type: 'input',
     message: "What is the name of the department?",
 }
+
+
+async function init(){
+    let task =  await askTask();
+    switch (task){
+        case'View All Employees':
+            console.log(task);
+    }
+}
+
+async function askTask(){
+    let task = await inquirer.prompt(possiblePrompts);
+    return task.selection;
+}
+
+init();
