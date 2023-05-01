@@ -1,6 +1,7 @@
 //Import inquirer and mySql
 const inquirer = require("inquirer");
 const mySql = require('mysql2');
+const cTable = require('console.table');
 
 const db = mySql.createConnection(
     {
@@ -46,7 +47,7 @@ async function showMenu() {
             showEmployees();
             break;
         case 'View All Departments':
-            showTable(['departments']);
+            showDepartments();
             break;
         case 'View All Roles':
             showRoles();
@@ -74,27 +75,21 @@ async function askTask() {
     return task.selection;
 }
 
-function showTable(parameters) {
-    db.query('SELECT * FROM ??', parameters, (err, res) => {
-        console.table(res);
-    })
-}
-
 function showRoles(){
     db.query('SELECT r.id, r.title, d.name, r.salary FROM roles r JOIN departments d ON r.department_id = d.id', (err, res) => {
-        console.table(res);
+        console.table(res)
     })
 }
 
 function showEmployees(){
     db.query('SELECT e.id, e.first_name, e.last_name, r.title, r.salary, d.name, CONCAT(e2.first_name, " ", e2.last_name) AS Manager FROM employees e JOIN employees e2 ON e2.id = e.manager_id JOIN roles r ON r.id = e.role_id JOIN departments d ON r.department_id = d.id', (err, res) => {
-        console.table(res);
+        console.table(res)
     })
 }
 
 function showDepartments(){
     db.query('SELECT * FROM departments', (err, res) => {
-        console.table(res);
+        console.table(res)
     })
 }
 
